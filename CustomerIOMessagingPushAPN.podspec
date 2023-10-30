@@ -20,5 +20,5 @@ Pod::Spec.new do |spec|
   spec.source_files  = "Sources/MessagingPushAPN/**/*"
   spec.module_name = "CioMessagingPushAPN" # the `import X` name when using SDK in Swift files
   
-  spec.dependency "CustomerIOMessagingPush", "= #{spec.version.to_s}"
+  spec.dependency "CustomerIOMessagingPush/DashboardEarth", "= #{spec.version.to_s}"
 end

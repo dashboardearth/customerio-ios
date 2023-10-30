@@ -7,6 +7,6 @@ Pod::Spec.new do |spec|
   spec.source       = { :git => '', :tag => "" }
 
   spec.source_files  = "Source/**/*"
-  spec.dependency "CustomerIOTracking"
+  spec.dependency "CustomerIOTracking/DashboardEarth"
   spec.ios.deployment_target = "13.0"
 end

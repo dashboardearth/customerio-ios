@@ -31,18 +31,18 @@ Pod::Spec.new do |spec|
   end
 
   spec.subspec "MessagingPush" do |ss|
-    ss.dependency "CustomerIOMessagingPush", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingPush/DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingPushAPN" do |ss|
-    ss.dependency "CustomerIOMessagingPushAPN", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingPushAPN/DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingPushFCM" do |ss|
-    ss.dependency "CustomerIOMessagingPushFCM", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingPushFCM/DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingInApp" do |ss|
-    ss.dependency "CustomerIOMessagingInApp", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingInApp/DashboardEarth", "= #{spec.version.to_s}"
   end
 end
