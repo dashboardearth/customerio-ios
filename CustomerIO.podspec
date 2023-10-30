@@ -4,8 +4,8 @@
 # Example: CustomerIO/Tracking is an alias for the published pod CustomerIOTracking
 
 Pod::Spec.new do |spec|
-  spec.name         = "CustomerIO"
-  spec.version      = "2.8.5" # Don't modify this line - it's automatically updated
+  spec.name         = "CustomerIO/DashboardEarth"
+  spec.version      = "2.8.5-modified" # Don't modify this line - it's automatically updated
   spec.summary      = "Official Customer.io SDK for iOS."  
   spec.homepage     = "https://github.com/customerio/customerio-ios"
   spec.documentation_url = 'https://customer.io/docs/sdk/ios/'
