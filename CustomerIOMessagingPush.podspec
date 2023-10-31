@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-  spec.name         = "CustomerIOMessagingPush/DashboardEarth"
+  spec.name         = "CustomerIOMessagingPush-DashboardEarth"
   spec.version      = "2.8.5" # Don't modify this line - it's automatically updated
   spec.summary      = "Official Customer.io SDK for iOS."
   spec.homepage     = "https://github.com/dashboardearth/customerio-ios"
@@ -20,5 +20,5 @@ Pod::Spec.new do |spec|
   spec.source_files  = "Sources/MessagingPush/**/*"
   spec.module_name = "CioMessagingPush"  # the `import X` name when using SDK in Swift files
   
-  spec.dependency "CustomerIOTracking/DashboardEarth", "= #{spec.version.to_s}"
+  spec.dependency "CustomerIOTracking-DashboardEarth", "= #{spec.version.to_s}"
 end

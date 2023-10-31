@@ -1,5 +1,5 @@
 Pod::Spec.new do |spec|
-  spec.name         = "CustomerIOCommon/DashboardEarth"
+  spec.name         = "CustomerIOCommon-DashboardEarth"
   spec.version      = "2.8.5-modified" # Don't modify this line - it's automatically updated
   spec.summary      = "Official Customer.io SDK for iOS."
   spec.homepage     = "https://github.com/customerio/customerio-ios"

@@ -4,7 +4,7 @@
 # Example: CustomerIO/Tracking is an alias for the published pod CustomerIOTracking
 
 Pod::Spec.new do |spec|
-  spec.name         = "CustomerIO/DashboardEarth"
+  spec.name         = "CustomerIO-DashboardEarth"
   spec.version      = "2.8.5-modified" # Don't modify this line - it's automatically updated
   spec.summary      = "Official Customer.io SDK for iOS."  
   spec.homepage     = "https://github.com/customerio/customerio-ios"
@@ -31,18 +31,18 @@ Pod::Spec.new do |spec|
   end
 
   spec.subspec "MessagingPush" do |ss|
-    ss.dependency "CustomerIOMessagingPush/DashboardEarth", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingPush-DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingPushAPN" do |ss|
-    ss.dependency "CustomerIOMessagingPushAPN/DashboardEarth", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingPushAPN-DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingPushFCM" do |ss|
-    ss.dependency "CustomerIOMessagingPushFCM/DashboardEarth", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingPushFCM-DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingInApp" do |ss|
-    ss.dependency "CustomerIOMessagingInApp/DashboardEarth", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOMessagingInApp-DashboardEarth", "= #{spec.version.to_s}"
   end
 end
