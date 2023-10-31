@@ -27,7 +27,7 @@ Pod::Spec.new do |spec|
   spec.subspec "Tracking" do |ss|
     # Using `= X.X.X` is required for pre-release versions of an SDK (alpha, beta) 
     # In the future, we can use: `~> X.X.X` which matches by semantic version rules. 
-    ss.dependency "CustomerIOTracking", "= #{spec.version.to_s}"
+    ss.dependency "CustomerIOTracking-DashboardEarth", "= #{spec.version.to_s}"
   end
 
   spec.subspec "MessagingPush" do |ss|
