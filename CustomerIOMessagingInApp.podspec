@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
-  spec.name         = "CustomerIOMessagingInApp"
-  spec.version      = "3.5.1" # Don't modify this line - it's automatically updated
+  spec.name         = "CustomerIOMessagingInApp-DashboardEarth"
+  spec.version      = "3.5.1-modified" # Don't modify this line - it's automatically updated
   spec.summary      = "Official Customer.io SDK for iOS."
   spec.homepage     = "https://github.com/customerio/customerio-ios"
   spec.documentation_url = 'https://customer.io/docs/sdk/ios/'
@@ -25,5 +25,5 @@ Pod::Spec.new do |spec|
 
   spec.module_name = "CioMessagingInApp"  # the `import X` name when using SDK in Swift files
   
-  spec.dependency "CustomerIOCommon", "= #{spec.version.to_s}"
+  spec.dependency "CustomerIOCommon-DashboardEarth", "= #{spec.version.to_s}"
  end

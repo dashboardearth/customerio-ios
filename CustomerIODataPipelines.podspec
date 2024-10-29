@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
-  spec.name         = "CustomerIODataPipelines"
-  spec.version      = "3.5.1" # Don't modify this line - it's automatically updated
+  spec.name         = "CustomerIODataPipelines-DashboardEarth"
+  spec.version      = "3.5.1-modified" # Don't modify this line - it's automatically updated
   spec.summary      = "Official Customer.io SDK for iOS."
   spec.homepage     = "https://github.com/customerio/customerio-ios"
   spec.documentation_url = 'https://customer.io/docs/sdk/ios/'
@@ -24,8 +24,8 @@ Pod::Spec.new do |spec|
   }
   spec.module_name = "CioDataPipelines" # the `import X` name when using SDK in Swift files
   
-  spec.dependency "CustomerIOCommon", "= #{spec.version.to_s}"
-  spec.dependency "CustomerIOTrackingMigration", "= #{spec.version.to_s}"
+  spec.dependency "CustomerIOCommon-DashboardEarth", "= #{spec.version.to_s}"
+  spec.dependency "CustomerIOTrackingMigration-DashboardEarth", "= #{spec.version.to_s}"
 
   # Add Segment SDK as a dependency, as this module is designed to be compatible with it.
   spec.dependency 'AnalyticsSwiftCIO', '= 1.5.14+cio.1'
