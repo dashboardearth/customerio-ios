@@ -1,23 +1,27 @@
+import CioDataPipelines
 import CioMessagingInApp
 import CioMessagingPushAPN
-import CioTracking
 import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var storage = DIGraph.shared.storage
-    var deepLinkHandler = DIGraph.shared.deepLinksHandlerUtil
+    var storage = DIGraphShared.shared.storage
+    var deepLinkHandler = DIGraphShared.shared.deepLinksHandlerUtil
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
-        // Register for remote notifications using APN. On successful registration,
-        // didRegisterForRemoteNotifications delegate method will be called and it
-        // provides a device token. In case, registration fails then
-        // didFailToRegisterForRemoteNotifications will be called.
-        application.registerForRemoteNotifications()
         initializeCioAndInAppListeners()
+
+        /**
+         Registers the `AppDelegate` class to handle when a push notification gets clicked.
+         This line of code is optional and only required if you have custom code that needs to run when a push notification gets clicked on.
+         Push notifications sent by Customer.io will be handled by the Customer.io SDK automatically, unless you disabled that feature. Therefore, this line of code is not required if you only want to handle push notifications sent by Customer.io.
+
+         We register a click handler in this app for testing purposes, only. To test that the Customer.io SDK is compatible with other SDKs that want to process push notifications not sent by Customer.io.
+         */
         UNUserNotificationCenter.current().delegate = self
+
         return true
     }
 
@@ -30,27 +34,42 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             storage.isTrackScreenEnabled = true
             storage.isTrackDeviceAttrEnabled = true
         }
+        var cdpApiKey = BuildEnvironment.CustomerIO.cdpApiKey
         var siteId = BuildEnvironment.CustomerIO.siteId
-        var apiKey = BuildEnvironment.CustomerIO.apiKey
         if let storedSiteId = storage.siteId {
             siteId = storedSiteId
         }
-        if let storedApiKey = storage.apiKey {
-            apiKey = storedApiKey
+        if let storedCdpApiKey = storage.cdpApiKey {
+            cdpApiKey = storedCdpApiKey
         }
-        CustomerIO.initialize(siteId: siteId, apiKey: apiKey, region: .US) { config in
-            config.logLevel = self.storage.isDebugModeEnabled ?? true ? .debug : .error
-            config.autoTrackDeviceAttributes = self.storage.isTrackDeviceAttrEnabled ?? true
-            config.backgroundQueueSecondsDelay = Double(self.storage.bgQDelay ?? "30") ?? 30
-            config.backgroundQueueMinNumberOfTasks = Int(self.storage.bgNumOfTasks ?? "10") ?? 10
-            config.autoTrackScreenViews = self.storage.isTrackScreenEnabled ?? true
-            if let trackUrl = self.storage.trackUrl, !trackUrl.isEmpty {
-                config.trackingApiUrl = trackUrl
-            }
-        }
+        let logLevel = storage.isDebugModeEnabled ?? true ? CioLogLevel.debug : CioLogLevel.error
+        let config = SDKConfigBuilder(cdpApiKey: cdpApiKey)
+            .logLevel(logLevel)
+            .flushAt(Int(storage.bgNumOfTasks ?? "10") ?? 10)
+            .flushInterval(Double(storage.bgQDelay ?? "30") ?? 30)
+            .autoTrackDeviceAttributes(storage.isTrackDeviceAttrEnabled ?? true)
+            .migrationSiteId(siteId)
 
-        // Add event listeners for in-app. This is not to initialise in-app but event listeners for in-app.
-        MessagingInApp.initialize(eventListener: self)
+        if let apiHost = storage.apiHost, !apiHost.isEmpty {
+            config.apiHost(apiHost)
+        }
+        if let cdnHost = storage.cdnHost, !cdnHost.isEmpty {
+            config.cdnHost(cdnHost)
+        }
+        if storage.isTrackScreenEnabled == true {
+            config.autoTrackUIKitScreenViews()
+        }
+        CustomerIO.initialize(withConfig: config.build())
+
+        // Initialize messaging features after initializing Customer.io SDK
+        MessagingInApp
+            .initialize(withConfig: MessagingInAppConfigBuilder(siteId: siteId, region: .US).build())
+            .setEventListener(self)
+        MessagingPushAPN.initialize(
+            withConfig: MessagingPushConfigBuilder()
+                .autoFetchDeviceToken(true)
+                .build()
+        )
     }
 
     // Handle Universal Link deep link from the Customer.io SDK. This function will get called if a push notification
@@ -79,43 +98,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        storage.deviceToken = String(apnDeviceToken: deviceToken)
-        MessagingPush.shared.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-    }
-
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        MessagingPush.shared.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-    }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
-    // Delegate called when user responds to a notification. Set delegate in
-    // application:didFinishLaunchingWithOptions: method.
+    // Function called when a push notification is clicked or swiped away.
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        let handled = MessagingPush.shared.userNotificationCenter(
-            center,
-            didReceive: response,
-            withCompletionHandler: completionHandler
+        // Track a Customer.io event for testing purposes to more easily track when this function is called.
+        CustomerIO.shared.track(
+            name: "push clicked",
+            properties: ["push": response.notification.request.content.userInfo]
         )
 
-        // If the Customer.io SDK does not handle the push, it's up to you to handle it and call the
-        // completion handler. If the SDK did handle it, it called the completion handler for you.
-        if !handled {
-            completionHandler()
-        }
+        completionHandler()
     }
 
-    // OPTIONAL: Delegate method only runs when app is active(foreground). If not implemented or delayed, notification won't show in foreground. App can show notification as sound, badge, or alert..
-    @available(iOS 10.0, *)
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions)
-            -> Void
-    ) {
-        completionHandler([.list, .banner, .badge, .sound])
+    // To test sending of local notifications, display the push while app in foreground. So when you press the button to display local push in the app, you are able to see it and click on it.
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .badge, .sound])
     }
 }
 
@@ -126,7 +125,7 @@ extension AppDelegate: InAppEventListener {
     func messageShown(message: InAppMessage) {
         CustomerIO.shared.track(
             name: "inapp shown",
-            data: ["delivery-id": message.deliveryId ?? "(none)", "message-id": message.messageId]
+            properties: ["delivery-id": message.deliveryId ?? "(none)", "message-id": message.messageId]
         )
     }
 
@@ -134,7 +133,7 @@ extension AppDelegate: InAppEventListener {
     func messageDismissed(message: InAppMessage) {
         CustomerIO.shared.track(
             name: "inapp dismissed",
-            data: ["delivery-id": message.deliveryId ?? "(none)", "message-id": message.messageId]
+            properties: ["delivery-id": message.deliveryId ?? "(none)", "message-id": message.messageId]
         )
     }
 
@@ -142,7 +141,7 @@ extension AppDelegate: InAppEventListener {
     func errorWithMessage(message: InAppMessage) {
         CustomerIO.shared.track(
             name: "inapp error",
-            data: ["delivery-id": message.deliveryId ?? "(none)", "message-id": message.messageId]
+            properties: ["delivery-id": message.deliveryId ?? "(none)", "message-id": message.messageId]
         )
     }
 
@@ -151,7 +150,7 @@ extension AppDelegate: InAppEventListener {
         if actionName == "remove" || actionName == "test" {
             MessagingInApp.shared.dismissMessage()
         }
-        CustomerIO.shared.track(name: "inapp action", data: [
+        CustomerIO.shared.track(name: "inapp action", properties: [
             "delivery-id": message.deliveryId ?? "(none)",
             "message-id": message.messageId,
             "action-value": actionValue,

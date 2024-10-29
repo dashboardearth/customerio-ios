@@ -1,4 +1,5 @@
 import Foundation
+
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -16,7 +17,6 @@ public protocol DeviceInfo: AutoMockable {
     var customerAppName: String { get }
     var customerAppVersion: String { get }
     var customerBundleId: String { get }
-    var sdkVersion: String { get }
     var deviceLocale: String { get }
     func isPushSubscribed(completion: @escaping (Bool) -> Void)
 }
@@ -25,7 +25,7 @@ public protocol DeviceInfo: AutoMockable {
 // such as operating system, customer app name, bundle id etc
 // Class tested via QA testing.
 //
-// sourcery: InjectRegister = "DeviceInfo"
+// sourcery: InjectRegisterShared = "DeviceInfo"
 public class CIODeviceInfo: DeviceInfo {
     public var deviceManufacturer: String = "Apple"
 
@@ -65,10 +65,6 @@ public class CIODeviceInfo: DeviceInfo {
         Bundle.main.bundleIdentifier ?? ""
     }
 
-    public var sdkVersion: String {
-        SdkVersion.version
-    }
-
     // Requirements:
     // 1. Use - instead of _
     // 2. We prefer to get the OS language that the user has set. First try to return that. If that does not succeed
@@ -77,9 +73,17 @@ public class CIODeviceInfo: DeviceInfo {
     public var deviceLocale: String {
         if let osSetLanguage = Locale.preferredLanguages.first {
             let locale = Locale(identifier: osSetLanguage)
+            let getLangCodeAndRegion: () -> (String?, String?) = {
+                if #available(iOS 16, *), #available(visionOS 1.0, *) {
+                    return (locale.language.languageCode?.identifier, locale.region?.identifier)
+                } else {
+                    return (locale.languageCode, locale.regionCode)
+                }
+            }
 
-            if let languageCode = locale.languageCode,
-               let regionCode = locale.regionCode {
+            let (languageCode, regionCode) = getLangCodeAndRegion()
+
+            if let languageCode, let regionCode {
                 return "\(languageCode)-\(regionCode)"
             }
         }

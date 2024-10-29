@@ -6,7 +6,7 @@ import FoundationNetworking
 /**
  Exists to be able to mock http requests so we can test our HttpClient's response handling logic.
  */
-protocol HttpRequestRunner: AutoMockable {
+public protocol HttpRequestRunner: AutoMockable {
     func request(
         params: HttpRequestParams,
         session: URLSession,
@@ -15,12 +15,12 @@ protocol HttpRequestRunner: AutoMockable {
     func downloadFile(url: URL, fileType: DownloadFileType, session: URLSession, onComplete: @escaping (URL?) -> Void)
 }
 
-// sourcery: InjectRegister = "HttpRequestRunner"
-class UrlRequestHttpRequestRunner: HttpRequestRunner {
+// sourcery: InjectRegisterShared = "HttpRequestRunner"
+public class UrlRequestHttpRequestRunner: HttpRequestRunner {
     /**
      Note: When mocking request, open JSON file, convert to `Data`.
      */
-    func request(
+    public func request(
         params: HttpRequestParams,
         session: URLSession,
         onComplete: @escaping (Data?, HTTPURLResponse?, Error?) -> Void
@@ -55,10 +55,12 @@ class UrlRequestHttpRequestRunner: HttpRequestRunner {
         let directoryURL = fileType.directoryToSaveFiles(fileManager: FileManager.default)
 
         session.downloadTask(with: url) { tempLocation, response, _ in
-            guard let tempLocation = tempLocation, let uniqueFileName = response?.suggestedFilename else {
+            guard let tempLocation = tempLocation, let suggestedFileName = response?.suggestedFilename else {
                 return onComplete(nil)
             }
 
+            // create a unique file name so when trying to move temp file to destination it doesn't give an exception
+            let uniqueFileName = UUID().uuidString + "_" + suggestedFileName
             let destinationURL = directoryURL
                 .appendingPathComponent(uniqueFileName)
 
@@ -69,6 +71,8 @@ class UrlRequestHttpRequestRunner: HttpRequestRunner {
                     withIntermediateDirectories: true,
                     attributes: nil
                 )
+
+                // Now attempt the move
                 try FileManager.default.moveItem(at: tempLocation, to: destinationURL)
             } catch {
                 // XXX: log error when error handling for the customer enabled

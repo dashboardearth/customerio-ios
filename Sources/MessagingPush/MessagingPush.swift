@@ -1,5 +1,4 @@
 import CioInternalCommon
-import CioTracking
 import Foundation
 
 /**
@@ -8,40 +7,86 @@ import Foundation
   */
 public class MessagingPush: ModuleTopLevelObject<MessagingPushInstance>, MessagingPushInstance {
     @Atomic public private(set) static var shared = MessagingPush()
+    @Atomic public private(set) static var moduleConfig: MessagingPushConfigOptions = MessagingPushConfigBuilder().build()
+
+    private static let moduleName = "MessagingPush"
+
     private var globalDataStore: GlobalDataStore
 
-    // testing constructor
-    init(implementation: MessagingPushInstance?, globalDataStore: GlobalDataStore, sdkInitializedUtil: SdkInitializedUtil) {
-        self.globalDataStore = globalDataStore
-        super.init(implementation: implementation, sdkInitializedUtil: sdkInitializedUtil)
-    }
-
     // singleton constructor
-    override private init() {
-        self.globalDataStore = CioGlobalDataStore.getInstance()
-        super.init()
+    private init() {
+        self.globalDataStore = DIGraphShared.shared.globalDataStore
+        super.init(moduleName: Self.moduleName)
     }
 
-    // for testing
-    static func resetSharedInstance() {
+    #if DEBUG
+    // Methods to set up the test environment.
+    // In unit tests, any implementation of the interface works, while integration tests use the actual implementation.
+
+    @discardableResult
+    static func setUpSharedInstanceForUnitTest(implementation: MessagingPushInstance, diGraphShared: DIGraphShared, config: MessagingPushConfigOptions) -> MessagingPushInstance {
+        // initialize static properties before implementation creation, as they may be directly used by other classes
+        moduleConfig = config
+        shared.globalDataStore = diGraphShared.globalDataStore
+        shared._implementation = implementation
+        return implementation
+    }
+
+    @discardableResult
+    static func setUpSharedInstanceForIntegrationTest(diGraphShared: DIGraphShared, config: MessagingPushConfigOptions) -> MessagingPushInstance {
+        moduleConfig = config
+        let implementation = MessagingPushImplementation(diGraph: diGraphShared, moduleConfig: config)
+        return setUpSharedInstanceForUnitTest(implementation: implementation, diGraphShared: diGraphShared, config: config)
+    }
+
+    static func resetTestEnvironment() {
+        moduleConfig = MessagingPushConfigBuilder().build()
         shared = MessagingPush()
     }
+    #endif
 
-    // At this time, we do not require `MessagingPush.initialize()` to be called to make the SDK work. There is
-    // currently no module initialization to perform.
-    public static func initialize() {
-        MessagingPush.shared.initializeModuleIfSdkInitialized()
+    /**
+     Initialize the shared `instance` of `MessagingPush`.
+     Call this function when your app launches, before using `MessagingPush.shared`.
+     */
+    @discardableResult
+    @available(iOSApplicationExtension, unavailable)
+    public static func initialize(withConfig config: MessagingPushConfigOptions = MessagingPushConfigBuilder().build()) -> MessagingPushInstance {
+        shared.initializeModuleIfNotAlready {
+            // set moduleConfig before creating implementation instance as dependencies inside instance may directly use moduleConfig from MessagingPush.
+            Self.moduleConfig = config
+            // Some part of the initialize is specific only to non-NSE targets.
+            // Put those parts in this non-NSE initialize method.
+            if config.autoTrackPushEvents {
+                DIGraphShared.shared.automaticPushClickHandling.start()
+            }
+
+            return shared.getImplementation(config: config)
+        }
+
+        return shared
     }
 
-    override public func inititlizeModule(diGraph: DIGraph) {
-        let logger = diGraph.logger
-        logger.debug("Setting up MessagingPush module...")
+    /// MessagingPush initializer for Notification Service Extension
+    @available(iOS, unavailable)
+    @available(visionOS, unavailable)
+    @available(iOSApplicationExtension, introduced: 13.0)
+    @available(visionOSApplicationExtension, introduced: 1.0)
+    @discardableResult
+    public static func initializeForExtension(withConfig config: MessagingPushConfigOptions) -> MessagingPushInstance {
+        shared.initializeModuleIfNotAlready {
+            // set moduleConfig before creating implementation instance as dependencies inside instance may directly use moduleConfig from MessagingPush.
+            Self.moduleConfig = config
+            // set logLevel of shared logger only when module is initialized from NotificationServiceExtension.
+            DIGraphShared.shared.logger.setLogLevel(config.logLevel)
+            return shared.getImplementation(config: config)
+        }
 
-        logger.info("MessagingPush module setup with SDK")
+        return shared
     }
 
-    override public func getImplementationInstance(diGraph: DIGraph) -> MessagingPushInstance {
-        MessagingPushImplementation(diGraph: diGraph)
+    private func getImplementation(config: MessagingPushConfigOptions) -> MessagingPushInstance {
+        MessagingPushImplementation(diGraph: DIGraphShared.shared, moduleConfig: config)
     }
 
     /**
@@ -81,5 +126,16 @@ public class MessagingPush: ModuleTopLevelObject<MessagingPushInstance>, Messagi
         deviceToken: String
     ) {
         implementation?.trackMetric(deliveryID: deliveryID, event: event, deviceToken: deviceToken)
+    }
+}
+
+// Convenient way for other modules to access instance as well as being able to mock instance in tests.
+public extension DIGraphShared {
+    var messagingPushInstance: MessagingPushInstance {
+        if let override: MessagingPushInstance = getOverriddenInstance() {
+            return override
+        }
+
+        return MessagingPush.shared
     }
 }

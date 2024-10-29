@@ -5,6 +5,19 @@ import os.log
 
 /// mockable logger + abstract that allows you to log to multiple places if you wish
 public protocol Logger: AutoMockable {
+    /// Represents the current log level of the logger. The log level
+    /// controls the verbosity of the logs that are output. Only messages
+    /// at this level or higher will be logged.
+    var logLevel: CioLogLevel { get }
+    /// Sets the dispatcher to handle log events based on the log level.
+    /// Default implementation is to print logs to XCode Debug Area.
+    /// In wrapper SDKs, this will be overridden to emit logs to more user-friendly channels like console, etc.
+    /// - Parameter dispatcher: Dispatcher to handle log events based on the log level, pass null to reset to default.
+    func setLogDispatcher(_ dispatcher: ((CioLogLevel, String) -> Void)?)
+    /// Sets the logger's verbosity level to control which messages are logged.
+    /// Levels range from `.debug` (most verbose) to `.error` (least verbose).
+    /// - Parameter level: The `CioLogLevel` for logging output verbosity.
+    func setLogLevel(_ level: CioLogLevel)
     /// the noisey log level. Feel free to spam this log level with any
     /// information about the SDK that would be useful for debugging the SDK.
     func debug(_ message: String)
@@ -52,32 +65,29 @@ public enum CioLogLevel: String, CaseIterable {
 }
 
 // log messages to console.
-// sourcery: InjectRegister = "Logger"
+// sourcery: InjectRegisterShared = "Logger"
+// sourcery: InjectSingleton
 public class ConsoleLogger: Logger {
+    public var logLevel: CioLogLevel = .error
+
+    public func setLogLevel(_ level: CioLogLevel) {
+        logLevel = level
+    }
+
     // allows filtering in Console mac app
     public static let logSubsystem = "io.customer.sdk"
     public static let logCategory = "CIO"
 
-    private let sdkConfig: SdkConfig
+    private var logDispatcher: ((CioLogLevel, String) -> Void)?
 
-    private var abbreviatedSiteId: String {
-        sdkConfig.siteId.getFirstNCharacters(5)
-    }
-
-    private var minLogLevel: CioLogLevel {
-        sdkConfig.logLevel
-    }
-
-    init(sdkConfig: SdkConfig) {
-        self.sdkConfig = sdkConfig
+    public func setLogDispatcher(_ dispatcher: ((CioLogLevel, String) -> Void)?) {
+        logDispatcher = dispatcher
     }
 
     private func printMessage(_ message: String, _ level: CioLogLevel) {
-        if !minLogLevel.shouldLog(level) { return }
+        if !logLevel.shouldLog(level) { return }
 
-        let messageToPrint = "(siteid:\(abbreviatedSiteId)) \(message)"
-
-        ConsoleLogger.logMessageToConsole(messageToPrint, level: level)
+        logDispatcher?(level, message) ?? ConsoleLogger.logMessageToConsole(message, level: level)
     }
 
     public func debug(_ message: String) {
@@ -120,7 +130,7 @@ public func sdkNotInitializedAlert(_ message: String) {
     ConsoleLogger.logMessageToConsole("⚠️ \(message)", level: .error)
 }
 
-extension CioLogLevel {
+public extension CioLogLevel {
     static func getLogLevel(for value: String) -> CioLogLevel? {
         switch value.lowercased() {
         case CioLogLevel.none.rawValue:

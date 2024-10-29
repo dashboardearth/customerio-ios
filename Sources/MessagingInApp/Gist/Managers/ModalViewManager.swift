@@ -7,7 +7,7 @@ public enum MessagePosition: String {
 }
 
 class ModalViewManager {
-    var window: UIWindow!
+    var window: UIWindow?
     var viewController: GistModalViewController!
     var position: MessagePosition
 
@@ -21,8 +21,8 @@ class ModalViewManager {
     func showModalView(completionHandler: @escaping () -> Void) {
         viewController.view.isHidden = true
         window = getUIWindow()
-        window.rootViewController = viewController
-        window.isHidden = false
+        window?.rootViewController = viewController
+        window?.isHidden = false
         var finalPosition: CGFloat = 0
 
         switch position {
@@ -66,15 +66,21 @@ class ModalViewManager {
             UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseIn], animations: {
                 self.viewController.view.center.y = finalPosition
             }, completion: { _ in
-                self.window?.isHidden = false
-                self.viewController.removeFromParent()
-                self.window = nil
+                self.removeModalViewFromScreen()
+
                 completionHandler()
             })
         })
     }
 
-    func getUIWindow() -> UIWindow {
+    private func removeModalViewFromScreen() {
+        viewController?.view.isHidden = true
+        window?.isHidden = true
+        viewController.removeFromParent()
+        window = nil
+    }
+
+    private func getUIWindow() -> UIWindow {
         var modalWindow = UIWindow(frame: UIScreen.main.bounds)
         if #available(iOS 13.0, *) {
             for connectedScene in UIApplication.shared.connectedScenes

@@ -1,8 +1,7 @@
-<p align="center">
+<p align=center>
   <a href="https://customer.io">
-    <img src="https://user-images.githubusercontent.com/6409227/144680509-907ee093-d7ad-4a9c-b0a5-f640eeb060cd.png" height="60">
+    <img src="https://avatars.githubusercontent.com/u/1152079?s=200&v=4" height="60">
   </a>
-  <p align="center">Power automated communication that people like to receive.</p>
 </p>
 
 ![min swift version is 5.3](https://img.shields.io/badge/min%20Swift%20version-5.3-orange)
@@ -14,13 +13,13 @@
 
 This is the official Customer.io SDK for iOS.
 
-You'll find our [complete SDK documentation at https://customer.io/docs/sdk/ios](https://customer.io/docs/sdk/ios/). This readme only contains basic information to help you install and initialize the SDK.
+You'll find our [complete SDK documentation at https://customer.io/docs/sdk/ios](https://customer.io/docs/sdk/ios/). 
 
 **The SDK has been tested on iOS devices**. It might work on other Apple devices—macOS, tvOS, and watchOS—but we have not officially tested, nor do we officially support, non-iOS devices.
 
-### Using version 1 of our SDK? 
+### Migrating from an older SDK version? 
 
-It's recommended to upgrade to using version 2 of the iOS SDK. [Check out our migration docs to learn how to update your app.](https://customer.io/docs/sdk/ios/migrate-upgrade/)
+Please follow the relevant migration guide for your current SDK version in our [migration docs](https://customer.io/docs/sdk/ios/migrate-upgrade/).
 
 ## Summary
 
@@ -34,47 +33,19 @@ We've separated our SDK into packages to minimize our impact on your app's size.
 | MessagingPushAPN | No | [Push](https://customer.io/docs/sdk/ios/push/) and [rich push](https://customer.io/docs/sdk/ios/rich-push/) notifications using Apple's Push Notification service (APNs). |
 | MessagingPushFCM | No | [Push](https://customer.io/docs/sdk/ios/push/) and [rich push](https://customer.io/docs/sdk/ios/rich-push/) notifications using Firebase Cloud Messaging (FCM). |
 
-> Tip: Check out our [sample iOS app, Remote Habits](https://github.com/customerio/RemoteHabits-iOS), for a real-world example using our SDK. 
+## visionOS Support
 
-## Install the SDK
+This SDK supports visionOS. We have a handy [sample app](Apps/VisionOS/README.md) that demonstrates how to use the Customer.io iOS/Swift SDK. You can find the sample app in the `Apps/VisionOS` directory.
 
-Follow **[Apple's instructions](https://developer.apple.com/documentation/swift_packages/adding_package_dependencies_to_your_app)** to add `https://github.com/customerio/customerio-ios.git` as a dependency to your project in Xcode and select the individual [package products](#sdk-package-products) that you want to install.
+We've only tested our SDK with visionOS using Swift Package Manager. If you use CocoaPods, everything might work, but we can't guarantee it. 
 
-We recommend that you set the *Dependency Rule* to *Up to Next Major Version*. While we encourage you to keep your app up to date with the latest SDK, major versions can include breaking changes or new features that require your attention.
+### visionOS Limitations
 
-![in XCode select up to next major version when installing the SDK](docs/img/xcode-install-sdk.png)
+While our SDK supports visionOS, there are some limitations:
+* We don't support the `MessagingPushFCM` package for visionOS. You must send push notifications over APNS.
+* We don't support in-app messaging (the `MessagingInApp` package) for visionOS.
 
-## Initialize the SDK
-
-Before you can use the Customer.io SDK, you need to initialize it. Any calls that you make to the SDK before you initialize it are ignored. 
-
-To get started, initialize the SDK in the `AppDelegate` `application(_ application: didFinishLaunchingWithOptions)` function: 
-
-```swift
-import CioTracking
-
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
-        CustomerIO.initialize(siteId: "YOUR SITE ID", apiKey: "YOUR API KEY", region: Region.EU) { config in 
-          // optionally, configure the SDK for your app's needs
-        }
-
-        return true
-    }
-}
-```
-
-Then, when you want to use any of the SDK features, you use the shared instance of the class:
-
-```swift
-CustomerIO.shared.track(...)
-MessagingPush.shared.application(...)
-```
-
-# More information
+# Getting started 
 
 See our complete SDK documentation at [https://customer.io/docs/sdk/ios/](https://customer.io/docs/sdk/ios/)
 
@@ -87,4 +58,3 @@ Thanks for taking an interest in our project! We welcome your contributions. Che
 # License
 
 [MIT](LICENSE)
-

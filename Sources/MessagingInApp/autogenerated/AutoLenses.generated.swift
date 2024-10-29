@@ -3,8 +3,8 @@
 // swiftlint:disable all
 
 import CioInternalCommon
-import CioTracking
 import Foundation
+import UIKit
 
 /**
  ######################################################

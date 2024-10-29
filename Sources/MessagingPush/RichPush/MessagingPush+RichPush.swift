@@ -1,5 +1,4 @@
 import CioInternalCommon
-import CioTracking
 import Foundation
 #if canImport(UserNotifications) && canImport(UIKit)
 import UIKit
@@ -51,63 +50,35 @@ extension MessagingPushImplementation {
         logger.info("did receive notification request. Checking if message was a push sent from Customer.io...")
         logger.debug("notification request: \(request.content.userInfo)")
 
-        guard let deliveryID: String = request.content.userInfo["CIO-Delivery-ID"] as? String,
-              let deviceToken: String = request.content.userInfo["CIO-Delivery-Token"] as? String
-        else {
+        let push = UNNotificationWrapper(notificationRequest: request)
+
+        guard let pushCioDeliveryInfo = push.cioDelivery else {
             logger.info("the notification was not sent by Customer.io. Ignoring notification request.")
             return false
         }
 
         logger.info("push was sent from Customer.io. Processing the request...")
 
-        if sdkConfig.autoTrackPushEvents {
+        if moduleConfig.autoTrackPushEvents {
             logger.info("automatically tracking push metric: delivered")
-            logger.debug("parsed deliveryId \(deliveryID), deviceToken: \(deviceToken)")
+            logger.debug("parsed deliveryId \(pushCioDeliveryInfo.id), deviceToken: \(pushCioDeliveryInfo.token)")
 
-            trackMetric(deliveryID: deliveryID, event: .delivered, deviceToken: deviceToken)
+            trackMetricFromNSE(deliveryID: pushCioDeliveryInfo.id, event: .delivered, deviceToken: pushCioDeliveryInfo.token)
         }
 
-        if let richPushContent = CustomerIOParsedPushPayload.parse(
-            notificationContent: request.content,
-            jsonAdapter: jsonAdapter
-        ) {
-            logger
-                .info("""
-                Parsing notification request to display rich content such as images, deep links, etc.
-                """)
-            logger.debug("push content: \(richPushContent)")
+        RichPushRequestHandler.shared.startRequest(
+            push: push
+        ) { composedRichPush in
+            self.logger.debug("rich push was composed \(composedRichPush).")
 
-            RichPushRequestHandler.shared.startRequest(
-                request,
-                content: richPushContent
-            ) { notificationContent in
-                self.logger.debug("rich push was composed \(notificationContent).")
-
-                self.finishTasksThenReturn(contentHandler: contentHandler, notificationContent: notificationContent)
+            // This conditional will only work in production and not in automated tests. But this file cannot be in automated tests so this conditional is OK for now.
+            if let composedRichPush = composedRichPush as? UNNotificationWrapper {
+                self.logger.info("Customer.io push processing is done!")
+                contentHandler(composedRichPush.notificationContent)
             }
-        } else {
-            logger.info("the push was a simple push, not a rich push. Processing is complete.")
-
-            finishTasksThenReturn(contentHandler: contentHandler, notificationContent: request.content)
         }
 
         return true
-    }
-
-    private func finishTasksThenReturn(
-        contentHandler: @escaping (UNNotificationContent) -> Void,
-        notificationContent: UNNotificationContent
-    ) {
-        logger
-            .debug(
-                "running all background queue tasks and waiting until complete to prevent OS from killing notification service extension before all HTTP requests have been performed"
-            )
-        backgroundQueue.run {
-            self.logger.debug("all background queue tasks done running.")
-            self.logger.info("Customer.io push processing is done!")
-
-            contentHandler(notificationContent)
-        }
     }
 
     /**
