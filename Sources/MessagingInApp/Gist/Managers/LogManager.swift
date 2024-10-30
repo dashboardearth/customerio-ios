@@ -1,19 +1,21 @@
+import CioInternalCommon
 import Foundation
 
+// sourcery: InjectRegisterShared = "LogManager"
 class LogManager {
-    let siteId: String
-    let dataCenter: String
+    let gistQueueNetwork: GistQueueNetwork
 
-    init(siteId: String, dataCenter: String) {
-        self.siteId = siteId
-        self.dataCenter = dataCenter
+    init(gistQueueNetwork: GistQueueNetwork) {
+        self.gistQueueNetwork = DIGraphShared.shared.gistQueueNetwork
     }
 
-    func logView(message: Message, userToken: String?, completionHandler: @escaping (Result<Void, Error>) -> Void) {
+    func logView(state: InAppMessageState, message: Message, completionHandler: @escaping (Result<Void, Error>) -> Void) {
         do {
-            if let queueId = message.queueId, let userToken = userToken {
-                try GistQueueNetwork(siteId: siteId, dataCenter: dataCenter, userToken: userToken)
-                    .request(LogEndpoint.logUserMessageView(queueId: queueId), completionHandler: { response in
+            if let queueId = message.queueId, let _ = state.userId {
+                try gistQueueNetwork.request(
+                    state: state,
+                    request: LogEndpoint.logUserMessageView(queueId: queueId),
+                    completionHandler: { response in
                         switch response {
                         case .success(let (_, response)):
                             if response.statusCode == 200 {
@@ -24,10 +26,13 @@ class LogManager {
                         case .failure(let error):
                             completionHandler(.failure(error))
                         }
-                    })
+                    }
+                )
             } else {
-                try GistQueueNetwork(siteId: siteId, dataCenter: dataCenter)
-                    .request(LogEndpoint.logMessageView(messageId: message.messageId), completionHandler: { response in
+                try gistQueueNetwork.request(
+                    state: state,
+                    request: LogEndpoint.logMessageView(messageId: message.messageId),
+                    completionHandler: { response in
                         switch response {
                         case .success(let (_, response)):
                             if response.statusCode == 200 {
@@ -38,7 +43,8 @@ class LogManager {
                         case .failure(let error):
                             completionHandler(.failure(error))
                         }
-                    })
+                    }
+                )
             }
         } catch {
             completionHandler(.failure(error))

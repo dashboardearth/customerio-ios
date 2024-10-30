@@ -2,16 +2,19 @@ import Foundation
 
 public protocol UserAgentUtil: AutoMockable {
     func getUserAgentHeaderValue() -> String
+    func getNSEUserAgentHeaderValue() -> String
 }
 
-// sourcery: InjectRegister = "UserAgentUtil"
+// sourcery: InjectRegisterShared = "UserAgentUtil"
 public class UserAgentUtilImpl: UserAgentUtil {
     private let deviceInfo: DeviceInfo
-    private let sdkWrapperConfig: SdkWrapperConfig?
+    private let mainTargetSdkClient: SdkClient
+    private let nseSdkClient: SdkClient
 
-    init(deviceInfo: DeviceInfo, sdkConfig: SdkConfig) {
+    init(deviceInfo: DeviceInfo, sdkClient: SdkClient) {
         self.deviceInfo = deviceInfo
-        self.sdkWrapperConfig = sdkConfig._sdkWrapperConfig
+        self.mainTargetSdkClient = sdkClient
+        self.nseSdkClient = DIGraphShared.shared.nseSdkClient
     }
 
     /**
@@ -25,11 +28,19 @@ public class UserAgentUtilImpl: UserAgentUtil {
      * `Customer.io iOS Client/1.0.0-alpha.16`
      */
     public func getUserAgentHeaderValue() -> String {
-        var userAgent = "Customer.io iOS Client/\(deviceInfo.sdkVersion)"
+        createUserAgentHeader(sdkClient: mainTargetSdkClient)
+    }
 
-        if let sdkWrapperConfig = sdkWrapperConfig {
-            userAgent = "Customer.io \(sdkWrapperConfig.source.rawValue) Client/\(sdkWrapperConfig.version)"
-        }
+    /**
+     * Same as `getUserAgentHeaderValue` but this function returns value for NSE client
+     */
+    public func getNSEUserAgentHeaderValue() -> String {
+        createUserAgentHeader(sdkClient: nseSdkClient)
+    }
+
+    /// Creates User-Agent header value based on given `SdkClient`
+    private func createUserAgentHeader(sdkClient: SdkClient) -> String {
+        var userAgent = "Customer.io \(sdkClient)"
 
         if let deviceModel = deviceInfo.deviceModel,
            let deviceOsVersion = deviceInfo.osVersion,

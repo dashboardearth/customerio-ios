@@ -1,4 +1,4 @@
-import CioTracking
+import CioDataPipelines
 import UIKit
 
 class DashboardViewController: BaseViewController {
@@ -16,8 +16,8 @@ class DashboardViewController: BaseViewController {
     @IBOutlet var userInfoLabel: UILabel!
     @IBOutlet var settings: UIImageView!
     var dashboardRouter: DashboardRouting?
-    var notificationUtil = DIGraph.shared.notificationUtil
-    var storage = DIGraph.shared.storage
+    var notificationUtil = DIGraphShared.shared.notificationUtil
+    var storage = DIGraphShared.shared.storage
     let randomData: [[String: Any?]] = [["name": "Order Purchased", "data": nil],
                                         ["name": "movie_watched", "data": ["movie_name": "The Incredibles"]],
                                         ["name": "appointmentScheduled", "data": ["appointmentTime": Date().addDaysToCurrentDate(days: 7)]]]
@@ -106,7 +106,7 @@ class DashboardViewController: BaseViewController {
         }
         showToast(withMessage: "Random event  tracked successfully")
         if let data = randomEventInfo["data"] as? [String: Any] {
-            CustomerIO.shared.track(name: name, data: data)
+            CustomerIO.shared.track(name: name, properties: data)
             return
         }
         CustomerIO.shared.track(name: name)
@@ -142,5 +142,14 @@ class DashboardViewController: BaseViewController {
                 }
             }
         }
+    }
+
+    @IBAction func send3rdPartyPush(_ sender: UIButton) {
+        // Display a local push notification on the system. This will test compatability when a push is clicked that was not sent by Customer.io.
+        let content = UNMutableNotificationContent()
+        content.title = "local push"
+        content.body = "Try clicking me and see host app handle the push instead of Customer.io SDK"
+        let request = UNNotificationRequest(identifier: "local-push-not-from-cio", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
     }
 }

@@ -1,3 +1,257 @@
+## [3.5.1](https://github.com/customerio/customerio-ios/compare/3.5.0...3.5.1) (2024-10-25)
+
+### Bug Fixes
+
+* dismiss keyboard on showing in app message on CDP SDK ([#828](https://github.com/customerio/customerio-ios/issues/828)) ([faad28a](https://github.com/customerio/customerio-ios/commit/faad28a02f085b5f4a334bc9122dbfe862e38119))
+
+## [3.5.0](https://github.com/customerio/customerio-ios/compare/3.4.1...3.5.0) (2024-10-16)
+
+### Features
+
+* support for wrapper SDKs ([#819](https://github.com/customerio/customerio-ios/issues/819)) ([171dfdc](https://github.com/customerio/customerio-ios/commit/171dfdc45a43f9560f24ae2d7ea2dcd3b71297c8))
+
+## [3.4.1](https://github.com/customerio/customerio-ios/compare/3.4.0...3.4.1) (2024-10-01)
+
+### Bug Fixes
+
+* crash when switching screens frequently ([#820](https://github.com/customerio/customerio-ios/issues/820)) ([62268a4](https://github.com/customerio/customerio-ios/commit/62268a4a3248ba62f7898f6a0cb25e9e7cb5d015))
+
+## [3.4.0](https://github.com/customerio/customerio-ios/compare/3.3.3...3.4.0) (2024-09-17)
+
+### Features
+
+* state-driven in-app messaging ([#815](https://github.com/customerio/customerio-ios/issues/815)) ([5cd651b](https://github.com/customerio/customerio-ios/commit/5cd651b0cc9a3593bdc1e782565bcf89ede87eb3))
+
+## [3.3.3](https://github.com/customerio/customerio-ios/compare/3.3.2...3.3.3) (2024-08-08)
+
+### Bug Fixes
+
+* tuist users not able to install CIO iOS SDK SPM manifest issue ([#791](https://github.com/customerio/customerio-ios/issues/791)) ([cd1346a](https://github.com/customerio/customerio-ios/commit/cd1346a8ee9bd7c0b81c7e92d4ffc7507a904d9f))
+
+## [3.3.2](https://github.com/customerio/customerio-ios/compare/3.3.1...3.3.2) (2024-06-27)
+
+### Bug Fixes
+
+* differentiate every push event handler installed in app ([#751](https://github.com/customerio/customerio-ios/issues/751)) ([ca5abb3](https://github.com/customerio/customerio-ios/commit/ca5abb349f4006a6de5f5b9c1355c7f422877c7c))
+
+## [3.3.1](https://github.com/customerio/customerio-ios/compare/3.3.0...3.3.1) (2024-06-25)
+
+### Bug Fixes
+
+* display in-app messages with page rules set and kill/re-open app ([#746](https://github.com/customerio/customerio-ios/issues/746)) ([cfae57d](https://github.com/customerio/customerio-ios/commit/cfae57d1b675865ca980c22f52abaeee9c9baa33))
+
+## [3.3.0](https://github.com/customerio/customerio-ios/compare/3.2.3...3.3.0) (2024-06-17)
+
+### Features
+
+* do not show modal message if change screens and page rule enabled ([#731](https://github.com/customerio/customerio-ios/issues/731)) ([cb1d014](https://github.com/customerio/customerio-ios/commit/cb1d014d52f7c53af6650e185857ba0e5468db49))
+
+## [3.2.3](https://github.com/customerio/customerio-ios/compare/3.2.2...3.2.3) (2024-06-13)
+
+### Bug Fixes
+
+* 3rd party SDK compatibility when SDK forwards push events back to us ([#736](https://github.com/customerio/customerio-ios/issues/736)) ([ccb0f47](https://github.com/customerio/customerio-ios/commit/ccb0f47297cca52c5023d149a325d9099dbdccd8))
+
+## [3.2.2](https://github.com/customerio/customerio-ios/compare/3.2.1...3.2.2) (2024-05-29)
+
+
+### Bug Fixes
+
+* action tracking for in-app ([#728](https://github.com/customerio/customerio-ios/issues/728)) ([c1f69c1](https://github.com/customerio/customerio-ios/commit/c1f69c167205238673265eda60aa5183bf14181a))
+
+## [3.2.1](https://github.com/customerio/customerio-ios/compare/3.2.0...3.2.1) (2024-05-27)
+
+
+### Bug Fixes
+
+* crash on emulator while development ([#725](https://github.com/customerio/customerio-ios/issues/725)) ([7ca2dc2](https://github.com/customerio/customerio-ios/commit/7ca2dc2fb8b65bb5f01dbbe7fc14ec2c0b1b7031))
+
+## [3.2.0](https://github.com/customerio/customerio-ios/compare/3.1.3...3.2.0) (2024-05-07)
+
+
+### Features
+
+* segment compatibility ([#685](https://github.com/customerio/customerio-ios/issues/685)) ([7298783](https://github.com/customerio/customerio-ios/commit/7298783adb888c014f30f04eb4d20e4bc6e9d810))
+
+## [3.1.3](https://github.com/customerio/customerio-ios/compare/3.1.2...3.1.3) (2024-04-24)
+
+
+### Bug Fixes
+
+* update segment internal SPM dependencies with fixed version ([#708](https://github.com/customerio/customerio-ios/issues/708)) ([c02742e](https://github.com/customerio/customerio-ios/commit/c02742eed420bd40d87bf4bf22d6a7e7727cdaab))
+
+## [3.1.2](https://github.com/customerio/customerio-ios/compare/3.1.1...3.1.2) (2024-04-16)
+
+
+### Bug Fixes
+
+* track bq migration for identify profile events with no attributes ([2fb4827](https://github.com/customerio/customerio-ios/commit/2fb4827ff0e59329e5bb2fc185b0e5781544c58a))
+
+## [3.1.1](https://github.com/customerio/customerio-ios/compare/3.1.0...3.1.1) (2024-04-15)
+
+
+### Bug Fixes
+
+* added alias for Region ([#693](https://github.com/customerio/customerio-ios/issues/693)) ([1619c72](https://github.com/customerio/customerio-ios/commit/1619c72e9acbf0b95fa0d7e5f8e25bf4fd2fc1d2))
+
+## [3.1.0](https://github.com/customerio/customerio-ios/compare/3.0.2...3.1.0) (2024-04-10)
+
+
+### Features
+
+* privacy manifest files ([#677](https://github.com/customerio/customerio-ios/issues/677)) ([e5c6dc7](https://github.com/customerio/customerio-ios/commit/e5c6dc7b6841ca31c02f2bd61cd49dc9c6604055))
+
+## [3.0.2](https://github.com/customerio/customerio-ios/compare/3.0.1...3.0.2) (2024-04-09)
+
+
+### Bug Fixes
+
+* [visionos] Minor project cleanup ([#688](https://github.com/customerio/customerio-ios/issues/688)) ([d2934fe](https://github.com/customerio/customerio-ios/commit/d2934fe1ad5255f35568411ee0c5362c052cd7ed))
+
+## [3.0.2](https://github.com/customerio/customerio-ios/compare/3.0.1...3.0.2) (2024-04-05)
+
+
+### Bug Fixes
+
+* [visionos] Minor project cleanup ([#688](https://github.com/customerio/customerio-ios/issues/688)) ([d2934fe](https://github.com/customerio/customerio-ios/commit/d2934fe1ad5255f35568411ee0c5362c052cd7ed))
+
+## [3.0.1](https://github.com/customerio/customerio-ios/compare/3.0.0...3.0.1) (2024-03-21)
+
+
+### Bug Fixes
+
+* install 3.0 with Swift Package Manager from Xcode ([#660](https://github.com/customerio/customerio-ios/issues/660)) ([45b0367](https://github.com/customerio/customerio-ios/commit/45b0367451b81aae952ee4f248226be48a37650f))
+
+## [3.0.0](https://github.com/customerio/customerio-ios/compare/2.12.5...3.0.0) (2024-03-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* iOS as a source for Data Pipelines (#659)
+
+### Features
+
+* iOS as a source for Data Pipelines ([#659](https://github.com/customerio/customerio-ios/issues/659)) ([0a68373](https://github.com/customerio/customerio-ios/commit/0a683732a8eea6372445b30c4bcce2f1dc9caa86))
+* migration module to cater to all migration tasks  ([#530](https://github.com/customerio/customerio-ios/issues/530)) ([2feb1d4](https://github.com/customerio/customerio-ios/commit/2feb1d4af49d1cf80ef1eecacb7ce2ea0a7881c9))
+
+
+### Bug Fixes
+
+* add attributes to properties  ([#649](https://github.com/customerio/customerio-ios/issues/649)) ([4b02e92](https://github.com/customerio/customerio-ios/commit/4b02e926e64ad3f26b111a7b7ff6a421d71203d9))
+* all sdk modules can only be initialized once ([ae46c7f](https://github.com/customerio/customerio-ios/commit/ae46c7f01c73d5db5a40d23f5959be7bf83c2e93))
+* app crash on identify method ([#458](https://github.com/customerio/customerio-ios/issues/458)) ([13e9862](https://github.com/customerio/customerio-ios/commit/13e9862b3e8161185e7f5dd823297187eb79d78a))
+* compilation for test ([f14b773](https://github.com/customerio/customerio-ios/commit/f14b77331c372689cc8d1791b625500ab4b3182b))
+* compilation issue ([420a61e](https://github.com/customerio/customerio-ios/commit/420a61e40d7a899bca7549390cbc33fbff16d7c4))
+* eventbus handler ref ([#469](https://github.com/customerio/customerio-ios/issues/469)) ([8c8ef91](https://github.com/customerio/customerio-ios/commit/8c8ef91bfbd7722ecd911f6be83a7ec5e1cc0725))
+* journey id in migration payload ([#653](https://github.com/customerio/customerio-ios/issues/653)) ([3b649c9](https://github.com/customerio/customerio-ios/commit/3b649c905946af1922665b183007b008d8bc0274))
+* prevent duplicate automatic screenview events from being tracked ([fea9ec5](https://github.com/customerio/customerio-ios/commit/fea9ec5ea498e25b24d65ef9e619790102337a0d))
+* pushEventHandler test ([dc80fc2](https://github.com/customerio/customerio-ios/commit/dc80fc2d66c290ad7080ac8e05a4cded2f729071))
+* remove occurrence of autoTrackDeviceAttributes from all push modules ([#505](https://github.com/customerio/customerio-ios/issues/505)) ([8dc6507](https://github.com/customerio/customerio-ios/commit/8dc6507582f1aed97fb80229df152f2ec152b186))
+* removed last_used from properties  ([#477](https://github.com/customerio/customerio-ios/issues/477)) ([b0b9631](https://github.com/customerio/customerio-ios/commit/b0b9631d88c558206f88d7de161ec51c7a15c2cf))
+* sample app issues ([#551](https://github.com/customerio/customerio-ios/issues/551)) ([05544b3](https://github.com/customerio/customerio-ios/commit/05544b3014b5276d21be736a9618046321967f23))
+* use git commit instead of git branch for segment dependency ([d245015](https://github.com/customerio/customerio-ios/commit/d2450154725c54898b5d08defacdd2e2f37406e8))
+
+## [2.12.5](https://github.com/customerio/customerio-ios/compare/2.12.4...2.12.5) (2024-03-18)
+
+
+### Bug Fixes
+
+* do not bundle .md files in cocoapods deployments ([15dbb48](https://github.com/customerio/customerio-ios/commit/15dbb48b942008178f5d6433fe9fc144f7c740b9))
+
+## [2.12.4](https://github.com/customerio/customerio-ios/compare/2.12.3...2.12.4) (2024-03-13)
+
+
+### Bug Fixes
+
+* call completionHandler if push handler does not implement optional function ([9996872](https://github.com/customerio/customerio-ios/commit/9996872e774a0c0c2135a0e02a398c07ab2397f8))
+* forward push received app in foreground events to 3rd party callbacks ([bd55e2b](https://github.com/customerio/customerio-ios/commit/bd55e2b9b2aa349d7f78c1e76d22dfa1463e35ac))
+* forward push response events to 3rd party callback functions, for CIO push ([121b157](https://github.com/customerio/customerio-ios/commit/121b157457708a6ac9f971a367f85d37a1684bde))
+* open deep link from main thread as required by UIKit ([7d7867f](https://github.com/customerio/customerio-ios/commit/7d7867fa0265169daa4e62bd016dbfb3f1764d65))
+
+## [2.12.3](https://github.com/customerio/customerio-ios/compare/2.12.2...2.12.3) (2024-03-05)
+
+
+### Bug Fixes
+
+* expo users reported app crash on didFailToRegisterForRemoteNotificationsWithError ([#575](https://github.com/customerio/customerio-ios/issues/575)) ([ac70292](https://github.com/customerio/customerio-ios/commit/ac702920fc205354715a99985eb5469f5a3d99da))
+
+## [2.12.2](https://github.com/customerio/customerio-ios/compare/2.12.1...2.12.2) (2024-02-23)
+
+
+### Bug Fixes
+
+* rich push image downloading path conflict when its already downloaded ([#561](https://github.com/customerio/customerio-ios/issues/561)) ([67cbfd6](https://github.com/customerio/customerio-ios/commit/67cbfd6b7aeb46dae8700f4bfb94817e06ad002e))
+
+## [2.12.1](https://github.com/customerio/customerio-ios/compare/2.12.0...2.12.1) (2024-02-15)
+
+
+### Bug Fixes
+
+* fixes an issue with multiple timers being scheduled ([#529](https://github.com/customerio/customerio-ios/issues/529)) ([ec383f1](https://github.com/customerio/customerio-ios/commit/ec383f1f92d0ecf819e90a87879c9ca870e0017d))
+
+## [2.12.0](https://github.com/customerio/customerio-ios/compare/2.11.1...2.12.0) (2024-02-15)
+
+
+### Features
+
+* use new header to set polling interval ([#519](https://github.com/customerio/customerio-ios/issues/519)) ([05a1ebd](https://github.com/customerio/customerio-ios/commit/05a1ebd475b965974b9aae60895cdaf8ac11e113))
+
+## [2.11.1](https://github.com/customerio/customerio-ios/compare/2.11.0...2.11.1) (2024-02-14)
+
+
+### Bug Fixes
+
+* enable logging for gist ([#524](https://github.com/customerio/customerio-ios/issues/524)) ([c786897](https://github.com/customerio/customerio-ios/commit/c786897bf9ce1ba15b0c2a1c23730346f9b1e70d))
+
+## [2.11.0](https://github.com/customerio/customerio-ios/compare/2.10.2...2.11.0) (2024-02-12)
+
+
+### Features
+
+* automatic push click handling ([#403](https://github.com/customerio/customerio-ios/issues/403)) ([47e94c4](https://github.com/customerio/customerio-ios/commit/47e94c47b562380afbe1e727c90c9a51cdb9e02b))
+
+## [2.10.2](https://github.com/customerio/customerio-ios/compare/2.10.1...2.10.2) (2024-01-18)
+
+
+### Bug Fixes
+
+* ensure messages are only shown once ([#468](https://github.com/customerio/customerio-ios/issues/468)) ([5cc6625](https://github.com/customerio/customerio-ios/commit/5cc66250347a2202297287b989cf1993a8c4248f))
+
+## [2.10.1](https://github.com/customerio/customerio-ios/compare/2.10.0...2.10.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* cocoapods APN customers app not compiling ([#414](https://github.com/customerio/customerio-ios/issues/414)) ([e7aaa23](https://github.com/customerio/customerio-ios/commit/e7aaa23320bde6fff8aa35a1def9c6ba05602c46))
+
+## [2.10.0](https://github.com/customerio/customerio-ios/compare/2.9.2...2.10.0) (2023-11-08)
+
+
+### Features
+
+* auto fetch device token and auto register device (apns) ([#391](https://github.com/customerio/customerio-ios/issues/391)) ([2fce84d](https://github.com/customerio/customerio-ios/commit/2fce84d0fc7801ddefcd1085b9a17b0859165d3b))
+
+## [2.9.2](https://github.com/customerio/customerio-ios/compare/2.9.1...2.9.2) (2023-11-07)
+
+
+### Bug Fixes
+
+* memory exception during SDK initialization async tasks ([#399](https://github.com/customerio/customerio-ios/issues/399)) ([3404523](https://github.com/customerio/customerio-ios/commit/3404523677bcf4a184b50ba88390596a3615bb6e))
+
+## [2.9.1](https://github.com/customerio/customerio-ios/compare/2.9.0...2.9.1) (2023-11-07)
+
+
+### Bug Fixes
+
+* add priority field to message and sorting by priority within local store ([#401](https://github.com/customerio/customerio-ios/issues/401)) ([8315118](https://github.com/customerio/customerio-ios/commit/83151189b7fa6829bf4eca47431e8aeba2c943fd))
+
+## [2.9.0](https://github.com/customerio/customerio-ios/compare/2.8.5...2.9.0) (2023-10-31)
+
+
+### Features
+
+* get currently registered device token ([#398](https://github.com/customerio/customerio-ios/issues/398)) ([cdedab0](https://github.com/customerio/customerio-ios/commit/cdedab0fa9a9894789f4807fc90e7b7119ff9ae9))
+
 ## [2.8.5](https://github.com/customerio/customerio-ios/compare/2.8.4...2.8.5) (2023-10-27)
 
 

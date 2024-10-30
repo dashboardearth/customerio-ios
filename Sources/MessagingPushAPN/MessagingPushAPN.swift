@@ -1,6 +1,5 @@
 import CioInternalCommon
 import CioMessagingPush
-import CioTracking
 import Foundation
 #if canImport(UserNotifications)
 import UserNotifications
@@ -74,6 +73,37 @@ public class MessagingPushAPN: MessagingPushAPNInstance {
 
     public func trackMetric(deliveryID: String, event: Metric, deviceToken: String) {
         messagingPush.trackMetric(deliveryID: deliveryID, event: event, deviceToken: deviceToken)
+    }
+
+    /**
+     Configure `MessagingPushAPN`.
+     Call this function in your app if you want to configure the module.
+     */
+    @discardableResult
+    @available(iOSApplicationExtension, unavailable)
+    public static func initialize(
+        withConfig config: MessagingPushConfigOptions = MessagingPushConfigBuilder().build()
+    ) -> MessagingPushInstance {
+        // initialize parent module to initialize features shared by APN and FCM modules
+        let implementation = MessagingPush.initialize(withConfig: config)
+
+        let pushConfigOptions = MessagingPush.moduleConfig
+        if pushConfigOptions.autoFetchDeviceToken {
+            shared.setupAutoFetchDeviceToken()
+        }
+
+        return implementation
+    }
+
+    /// MessagingPushAPN initializer for Notification Service Extension
+    @available(iOS, unavailable)
+    @available(visionOS, unavailable)
+    @available(iOSApplicationExtension, introduced: 13.0)
+    @available(visionOSApplicationExtension, introduced: 1.0)
+    @discardableResult
+    public static func initializeForExtension(withConfig config: MessagingPushConfigOptions) -> MessagingPushInstance {
+        let implementation = MessagingPush.initializeForExtension(withConfig: config)
+        return implementation
     }
 
     #if canImport(UserNotifications)

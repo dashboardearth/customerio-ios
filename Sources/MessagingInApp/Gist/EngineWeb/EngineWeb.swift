@@ -1,3 +1,4 @@
+import CioInternalCommon
 import Foundation
 import UIKit
 import WebKit
@@ -12,7 +13,16 @@ public protocol EngineWebDelegate: AnyObject {
     func error()
 }
 
-public class EngineWeb: NSObject {
+protocol EngineWebInstance: AutoMockable {
+    var delegate: EngineWebDelegate? { get set }
+    var view: UIView { get }
+    func cleanEngineWeb()
+}
+
+public class EngineWeb: NSObject, EngineWebInstance {
+    private let logger: Logger = DIGraphShared.shared.logger
+    private let inAppMessageManager: InAppMessageManager = DIGraphShared.shared.inAppMessageManager
+    private let currentMessage: Message
     private var _currentRoute = ""
     private var _timeoutTimer: Timer?
     private var _elapsedTimer = ElapsedTimer()
@@ -33,7 +43,9 @@ public class EngineWeb: NSObject {
         }
     }
 
-    init(configuration: EngineWebConfiguration) {
+    init(configuration: EngineWebConfiguration, state: InAppMessageState, message: Message) {
+        self.currentMessage = message
+
         super.init()
 
         _elapsedTimer.start(title: "Engine render for message: \(configuration.messageId)")
@@ -58,8 +70,8 @@ public class EngineWeb: NSObject {
            let jsonString = String(data: jsonData, encoding: .utf8),
            let options = jsonString.data(using: .utf8)?.base64EncodedString()
            .addingPercentEncoding(withAllowedCharacters: .alphanumerics) {
-            let url = "\(Settings.Network.renderer)/index.html?options=\(options)"
-            Logger.instance.info(message: "Loading URL: \(url)")
+            let url = "\(state.environment.networkSettings.renderer)/index.html?options=\(options)"
+            logger.logWithModuleTag("Loading URL: \(url)", level: .info)
             if let link = URL(string: url) {
                 self._timeoutTimer = Timer.scheduledTimer(
                     timeInterval: 5.0,
@@ -75,6 +87,8 @@ public class EngineWeb: NSObject {
     }
 
     public func cleanEngineWeb() {
+        _timeoutTimer?.invalidate()
+        _timeoutTimer = nil
         webView.removeFromSuperview()
         webView.configuration.userContentController.removeAllUserScripts()
         webView.configuration.userContentController.removeScriptMessageHandler(forName: "gist")
@@ -82,7 +96,8 @@ public class EngineWeb: NSObject {
 
     @objc
     func forcedTimeout() {
-        Logger.instance.info(message: "Timeout triggered, triggering message error.")
+        logger.logWithModuleTag("Timeout triggered, triggering message error.", level: .info)
+        inAppMessageManager.dispatch(action: .engineAction(action: .messageLoadingFailed(message: currentMessage)))
         delegate?.error()
     }
 }
@@ -104,6 +119,7 @@ extension EngineWeb: WKScriptMessageHandler {
         switch engineEventMethod {
         case .bootstrapped:
             _timeoutTimer?.invalidate()
+            _timeoutTimer = nil
             delegate?.bootstrapped()
         case .routeLoaded:
             _elapsedTimer.end()

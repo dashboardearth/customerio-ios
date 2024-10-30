@@ -1,132 +1,64 @@
 import CioInternalCommon
-import CioTracking
 import Foundation
 
 class MessagingInAppImplementation: MessagingInAppInstance {
-    private let siteId: String
-    private let region: Region
-    private let logger: CioInternalCommon.Logger
-    private var queue: Queue
-    private var jsonAdapter: JsonAdapter
-    private var inAppProvider: InAppProvider
-    private var profileStore: ProfileStore
+    private let moduleConfig: MessagingInAppConfigOptions
 
-    private var eventListener: InAppEventListener?
+    private let logger: Logger
+    private let inAppMessageManager: InAppMessageManager
+    private let gist: GistProvider
     private let threadUtil: ThreadUtil
+    private let eventBusHandler: EventBusHandler
 
-    init(diGraph: DIGraph) {
-        self.siteId = diGraph.sdkConfig.siteId
-        self.region = diGraph.sdkConfig.region
+    init(diGraph: DIGraphShared, moduleConfig: MessagingInAppConfigOptions) {
+        self.moduleConfig = moduleConfig
         self.logger = diGraph.logger
-        self.queue = diGraph.queue
-        self.jsonAdapter = diGraph.jsonAdapter
-        self.inAppProvider = diGraph.inAppProvider
-        self.profileStore = diGraph.profileStore
+        self.inAppMessageManager = diGraph.inAppMessageManager
+        self.gist = diGraph.gistProvider
         self.threadUtil = diGraph.threadUtil
+        self.eventBusHandler = diGraph.eventBusHandler
+
+        subscribeToInAppMessageState()
     }
 
-    func initialize() {
-        inAppProvider.initialize(siteId: siteId, region: region, delegate: self)
-
-        // if identifier is already present, set the userToken again so in case if the customer was already identified and
-        // module was added later on, we can notify gist about it.
-        if let identifier = profileStore.identifier {
-            inAppProvider.setProfileIdentifier(identifier)
+    private func subscribeToInAppMessageState() {
+        inAppMessageManager.dispatch(action: .initialize(
+            siteId: moduleConfig.siteId,
+            dataCenter: moduleConfig.region.rawValue,
+            environment: GistEnvironment.production
+        )) {
+            self.subscribeToEventBus()
         }
     }
 
-    func initialize(eventListener: InAppEventListener) {
-        self.eventListener = eventListener
-        initialize()
+    private func subscribeToEventBus() {
+        // if identifier is already present, set the userToken again so in case if the customer was already identified and
+        // module was added later on, we can notify gist about it.
+        eventBusHandler.addObserver(ProfileIdentifiedEvent.self) { event in
+            self.logger.logWithModuleTag("registering profile \(event.identifier) for in-app", level: .debug)
+
+            self.gist.setUserToken(event.identifier)
+        }
+
+        eventBusHandler.addObserver(ScreenViewedEvent.self) { event in
+            self.logger.logWithModuleTag("setting route for in-app to \(event.name)", level: .debug)
+
+            self.gist.setCurrentRoute(event.name)
+        }
+
+        eventBusHandler.addObserver(ResetEvent.self) { _ in
+            self.logger.logWithModuleTag("removing profile for in-app", level: .debug)
+
+            self.gist.resetState()
+        }
     }
 
-    // Functions deprecated but need to exist for `MessagingInAppInstance` protocol.
-    // Do not call these functions but non-deprecated ones.
-    func initialize(organizationId: String) {}
+    func setEventListener(_ eventListener: InAppEventListener?) {
+        gist.setEventListener(eventListener)
+    }
 
     // Dismiss in-app message
     func dismissMessage() {
-        inAppProvider.dismissMessage()
-    }
-}
-
-extension MessagingInAppImplementation: ProfileIdentifyHook {
-    public func beforeIdentifiedProfileChange(oldIdentifier: String, newIdentifier: String) {}
-
-    public func profileIdentified(identifier: String) {
-        logger.debug("registering profile \(identifier) for in-app")
-
-        inAppProvider.setProfileIdentifier(identifier)
-    }
-
-    public func beforeProfileStoppedBeingIdentified(oldIdentifier: String) {
-        logger.debug("removing profile for in-app")
-
-        inAppProvider.clearIdentify()
-    }
-}
-
-extension MessagingInAppImplementation: ScreenTrackingHook {
-    public func screenViewed(name: String) {
-        logger.debug("setting route for in-app to \(name)")
-
-        // Gist expects webview to be launched in main thread and changing route will trigger locally stored in-app messages for that route.
-        threadUtil.runMain {
-            self.inAppProvider.setRoute(name)
-        }
-    }
-}
-
-extension MessagingInAppImplementation: GistDelegate {
-    public func embedMessage(message: Message, elementId: String) {}
-
-    // Aka: message opened
-    public func messageShown(message: Message) {
-        logger.debug("in-app message opened. \(message.describeForLogs)")
-
-        eventListener?.messageShown(message: InAppMessage(gistMessage: message))
-
-        if let deliveryId = getDeliveryId(from: message) {
-            // the state of the SDK does not change if adding this queue task isn't successful so ignore result
-            _ = queue.addTrackInAppDeliveryTask(deliveryId: deliveryId, event: .opened)
-        }
-    }
-
-    public func messageDismissed(message: Message) {
-        logger.debug("in-app message dismissed. \(message.describeForLogs)")
-
-        eventListener?.messageDismissed(message: InAppMessage(gistMessage: message))
-    }
-
-    public func messageError(message: Message) {
-        logger.error("error with in-app message. \(message.describeForLogs)")
-
-        eventListener?.errorWithMessage(message: InAppMessage(gistMessage: message))
-    }
-
-    public func action(message: Message, currentRoute: String, action: String, name: String) {
-        logger.debug("in-app action made. \(action), \(message.describeForLogs)")
-
-        // a close action does not count as a clicked action.
-        if action != "gist://close" {
-            if let deliveryId = getDeliveryId(from: message) {
-                // the state of the SDK does not change if adding this queue task isn't successful so ignore result
-                _ = queue.addTrackInAppDeliveryTask(deliveryId: deliveryId, event: .clicked, metaData: ["action_name": name, "action_value": action])
-            }
-        }
-
-        eventListener?.messageActionTaken(
-            message: InAppMessage(gistMessage: message),
-            actionValue: action,
-            actionName: name
-        )
-    }
-
-    private func getDeliveryId(from message: Message) -> String? {
-        guard let deliveryId = message.gistProperties.campaignId else {
-            return nil
-        }
-
-        return deliveryId
+        gist.dismissMessage()
     }
 }
